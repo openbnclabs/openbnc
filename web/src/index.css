@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+/*
+ * openbnc Dark Theme
+ * Dark-mode by default with gray cards and blue/green accents.
+ */
+
+@theme {
+  /* Binance Dark backgrounds */
+  --color-bg-primary: #0B0E11;
+  --color-bg-secondary: #1E2026;
+  --color-bg-card: #2B2F36;
+  --color-bg-card-hover: #363B44;
+  --color-bg-input: #1E2026;
+
+  --color-border-default: #2B2F36;
+  --color-border-subtle: #1E2026;
+
+  /* Binance Yellow accent */
+  --color-accent-blue: #F0B90B;
+  --color-accent-blue-hover: #D4A108;
+  --color-accent-green: #0ECB81;
+  --color-accent-green-hover: #0bb574;
+
+  --color-text-primary: #EAECEF;
+  --color-text-secondary: #848E9C;
+  --color-text-muted: #5E6673;
+
+  --color-status-success: #0ECB81;
+  --color-status-warning: #F0B90B;
+  --color-status-error: #F6465D;
+  --color-status-info: #F0B90B;
+
+  /* Override Tailwind blue palette → Binance Yellow */
+  --color-blue-200: #fde68a;
+  --color-blue-300: #fcd34d;
+  --color-blue-400: #F0B90B;
+  --color-blue-500: #F0B90B;
+  --color-blue-600: #F0B90B;
+  --color-blue-700: #D4A108;
+  --color-blue-800: #92580a;
+  --color-blue-900: #3d2c01;
+
+  /* Binance Dark gray overrides */
+  --color-gray-700: #363B44;
+  --color-gray-800: #2B2F36;
+  --color-gray-900: #1E2026;
+  --color-gray-950: #0B0E11;
+}
+
+/* Logo animations */
+@keyframes logo-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+    filter: drop-shadow(0 0 0px #F0B90B);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: drop-shadow(0 0 8px #F0B90B55);
+  }
+}
+
+@keyframes logo-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px #F0B90B44);
+  }
+  50% {
+    filter: drop-shadow(0 0 18px #F0B90BAA);
+  }
+}
+
+.logo-animate {
+  animation:
+    logo-enter 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    logo-glow 3s ease-in-out 0.9s infinite;
+}
+
+/* Base styles */
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family:
+    "Inter",
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Card utility */
+.card {
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
+  border-radius: 0.75rem;
+}
+
+.card:hover {
+  background-color: var(--color-bg-card-hover);
+}
+
+/* Focus ring utility */
+*:focus-visible {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: 2px;
+}

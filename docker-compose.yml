@@ -1,0 +1,66 @@
+# openbnc Docker Compose Example
+# 
+# Quick start:
+#   1. Copy this file and set your API key
+#   2. Run: docker compose up -d
+#   3. Access gateway at http://localhost:42617
+#
+# For more info: https://github.com/openbnclabs/openbnc
+
+services:
+  openbnc:
+    image: ghcr.io/openbnclabs/openbnc:latest
+    # Or build locally:
+    # build:
+    #   context: .
+    #   target: dev
+    container_name: openbnc
+    restart: unless-stopped
+    
+    environment:
+      # Required: Your LLM provider API key
+      - API_KEY=${API_KEY:-}
+      # Or use the prefixed version:
+      # - OPENBNC_API_KEY=${OPENBNC_API_KEY:-}
+      
+      # Optional: LLM provider (default: openrouter)
+      # Options: openrouter, openai, anthropic, ollama
+      - PROVIDER=${PROVIDER:-openrouter}
+      
+      # Allow public bind inside Docker (required for container networking)
+      - OPENBNC_ALLOW_PUBLIC_BIND=true
+      # Default gateway port inside container
+      - OPENBNC_GATEWAY_PORT=${OPENBNC_GATEWAY_PORT:-42617}
+      
+      # Optional: Model override
+      # - OPENBNC_MODEL=anthropic/claude-sonnet-4-20250514
+      
+    volumes:
+      # Persist workspace and config (must match WORKDIR/HOME in Dockerfile)
+      - openbnc-data:/openbnc-data
+      
+    ports:
+      # Gateway API port (override HOST_PORT if 42617 is taken)
+      - "${HOST_PORT:-42617}:${OPENBNC_GATEWAY_PORT:-42617}"
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    # Health check — uses lightweight status instead of full diagnostics.
+    # For images with curl, prefer: curl -f http://localhost:42617/health
+    healthcheck:
+      test: ["CMD", "openbnc", "status"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  openbnc-data:
