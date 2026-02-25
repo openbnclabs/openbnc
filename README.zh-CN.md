@@ -63,3 +63,186 @@ openbnc 目前处于早期实验性开发阶段。API 会发生变化，功能�
 ---
 
 *openbnc 是一个开源项目，欢迎贡献代码、分享想法和提出建设性反馈。*
+
+---
+
+## 部署指南
+
+### 支持的 LLM Provider
+
+openbnc 不绑定任何单一模型，支持以下 Provider：
+
+| Provider | 说明 |
+|----------|------|
+| `ollama` | 本地运行模型，无需 API Key |
+| `openrouter` | 一个 Key 访问 100+ 模型（默认）|
+| `openai` | GPT-4o、o1 等 OpenAI 模型 |
+| `anthropic` | Claude 3.5 / Claude 4 系列 |
+| `gemini` | Google Gemini 模型 |
+| `bedrock` | AWS Bedrock |
+| `copilot` | GitHub Copilot |
+| `glm` | 智谱 GLM（国产模型）|
+| `compatible` | 任意兼容 OpenAI 格式的接口 |
+| `telnyx` | Telnyx AI |
+
+### 支持的消息频道
+
+将你的智能体接入你已在使用的平台：
+
+`Telegram` · `Discord` · `Slack` · `WhatsApp` · `QQ` · `钉钉` · `飞书` · `Signal` · `Matrix` · `Mattermost` · `IRC` · `Nostr` · `iMessage` · `邮件` · `Nextcloud Talk`
+
+---
+
+### 环境依赖
+
+- [Rust](https://rustup.rs/) 1.93+
+- [Node.js](https://nodejs.org/) 18+ 及 npm（用于构建 Web 控制台）
+- Visual Studio 2022 Build Tools，需勾选**使用 C++ 的桌面开发**（仅 Windows）
+
+---
+
+### 从源码构建
+
+**1. 克隆仓库**
+
+```bash
+git clone https://github.com/openbnclabs/openbnc.git
+cd openbnc
+```
+
+**2. 构建 Web 控制台**
+
+```bash
+cd web
+npm install
+npx vite build
+cd ..
+```
+
+**3. 编译 Rust 二进制**
+
+```bash
+cargo build --release
+```
+
+编译产物位于 `target/release/openbnc`（Windows 为 `openbnc.exe`）。
+
+---
+
+### 配置
+
+首次运行时，openbnc 会在 `~/.openbnc/config.toml` 自动生成配置文件。
+
+最简单的配置方式是使用环境变量：
+
+| 变量 | 说明 |
+|------|------|
+| `PROVIDER` | LLM Provider（`ollama`、`openrouter`、`openai` 等）|
+| `API_KEY` | Provider 的 API Key（Ollama 填服务地址）|
+| `OPENBNC_MODEL` | 使用的模型名称 |
+
+---
+
+### 快速启动
+
+**方式 A — 本地 Ollama（无需 API Key）**
+
+```bash
+# 安装 Ollama：https://ollama.com
+ollama pull qwen2.5:7b
+
+# 启动 openbnc
+PROVIDER=ollama API_KEY=http://localhost:11434 OPENBNC_MODEL=qwen2.5:7b ./openbnc daemon
+```
+
+Windows PowerShell：
+
+```powershell
+$env:PROVIDER="ollama"; $env:API_KEY="http://localhost:11434"; $env:OPENBNC_MODEL="qwen2.5:7b"; .\target\release\openbnc.exe daemon
+```
+
+**方式 B — OpenRouter（推荐云端方案）**
+
+```bash
+PROVIDER=openrouter API_KEY=你的Key ./openbnc daemon
+```
+
+启动后访问 **http://localhost:42617** 打开 Web 控制台。
+
+---
+
+### 配对（首次登录）
+
+openbnc 使用一次性配对码保障安全。首次启动（无已有会话）时，终端会打印：
+
+```
+🔐 PAIRING REQUIRED — use this one-time code:
+┌─────────────────┐
+│  ABC123          │
+└─────────────────┘
+```
+
+在 Web 控制台输入此码完成配对。Token 会持久化保存，后续启动无需重复配对。
+
+重置配对：清空 `~/.openbnc/config.toml` 中的 `paired_tokens`：
+
+```toml
+paired_tokens = []
+```
+
+---
+
+### 接入 Telegram
+
+**1. 通过 [@BotFather](https://t.me/BotFather) 创建 Bot**
+
+```
+/newbot
+```
+
+复制获得的 Bot Token（格式：`123456789:ABCdef...`）。
+
+**2. 写入配置文件** (`~/.openbnc/config.toml`)：
+
+```toml
+[channels_config.telegram]
+bot_token = "你的Bot Token"
+allowed_users = ["你的Telegram用户名"]
+stream_mode = "partial"
+interrupt_on_new_message = true
+```
+
+**3. 使用 `daemon` 启动（而非 `gateway`）**
+
+```bash
+./openbnc daemon
+```
+
+`daemon` 命令会同时启动网关、所有已配置的消息频道和任务调度器。
+
+---
+
+### 代理配置（适用于需要代理的用户）
+
+若需要代理访问外部 API（如 Telegram、OpenRouter）：
+
+```toml
+[proxy]
+enabled = true
+http_proxy = "http://127.0.0.1:7890"
+https_proxy = "http://127.0.0.1:7890"
+no_proxy = ["localhost", "127.0.0.1"]
+```
+
+> **注意：** 使用本地 Ollama 时，务必将 `localhost` 和 `127.0.0.1` 加入 `no_proxy`，避免代理拦截本地请求导致连接失败。
+
+---
+
+### `gateway` 与 `daemon` 的区别
+
+| 命令 | 启动内容 |
+|------|---------|
+| `openbnc gateway` | 仅启动 HTTP 网关和 Web 控制台 |
+| `openbnc daemon` | 网关 + 所有消息频道 + 心跳监控 + 定时任务 |
+
+接入 Telegram 等消息频道时，请使用 `daemon`。

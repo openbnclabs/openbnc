@@ -63,3 +63,63 @@ Nếu bạn thấy điều đó thú vị hơn là đáng lo ngại, bạn đã 
 ---
 
 *openbnc là một dự án mã nguồn mở. Đóng góp, ý tưởng và phản hồi đều được hoan nghênh.*
+
+---
+
+## Hướng dẫn triển khai
+
+### Các nhà cung cấp LLM được hỗ trợ
+
+| Nhà cung cấp | Mô tả |
+|--------------|-------|
+| `ollama` | Chạy mô hình cục bộ (không cần API key) |
+| `openrouter` | Truy cập 100+ mô hình với một key (mặc định) |
+| `openai` | GPT-4o, o1 và các mô hình OpenAI |
+| `anthropic` | Dòng Claude 3.5 / Claude 4 |
+| `gemini` | Google Gemini |
+| `bedrock` | AWS Bedrock |
+| `glm` | Zhipu GLM |
+| `compatible` | Bất kỳ API tương thích OpenAI nào |
+
+### Các kênh được hỗ trợ
+
+`Telegram` · `Discord` · `Slack` · `WhatsApp` · `QQ` · `DingTalk` · `Lark` · `Signal` · `Matrix` · `Mattermost` · `IRC` · `Nostr` · `iMessage` · `Email`
+
+---
+
+### Build từ mã nguồn
+
+```bash
+git clone https://github.com/openbnclabs/openbnc.git
+cd openbnc
+cd web && npm install && npx vite build && cd ..
+cargo build --release
+```
+
+### Khởi động nhanh (Ollama)
+
+```bash
+ollama pull qwen2.5:7b
+PROVIDER=ollama API_KEY=http://localhost:11434 OPENBNC_MODEL=qwen2.5:7b ./openbnc daemon
+```
+
+Mở **http://localhost:42617** trên trình duyệt.
+
+### Tích hợp Telegram
+
+```toml
+[channels_config.telegram]
+bot_token = "TOKEN_BOT_CỦA_BẠN"
+allowed_users = ["ten_nguoi_dung_cua_ban"]
+stream_mode = "partial"
+interrupt_on_new_message = true
+```
+
+Sử dụng lệnh `daemon` (không phải `gateway`) để khởi động.
+
+### Sự khác biệt giữa `gateway` và `daemon`
+
+| Lệnh | Những gì được khởi động |
+|------|------------------------|
+| `openbnc gateway` | Chỉ HTTP gateway |
+| `openbnc daemon` | Gateway + kênh + bộ lập lịch |

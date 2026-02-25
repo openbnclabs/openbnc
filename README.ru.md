@@ -63,3 +63,63 @@ openbnc находится на ранней стадии эксперимент
 ---
 
 *openbnc — проект с открытым исходным кодом. Мы рады вкладу, идеям и конструктивной критике.*
+
+---
+
+## Руководство по развёртыванию
+
+### Поддерживаемые LLM-провайдеры
+
+| Провайдер | Описание |
+|-----------|----------|
+| `ollama` | Локальный запуск моделей (без API-ключа) |
+| `openrouter` | Доступ к 100+ моделям по одному ключу (по умолчанию) |
+| `openai` | GPT-4o, o1 и другие модели OpenAI |
+| `anthropic` | Серия Claude 3.5 / Claude 4 |
+| `gemini` | Google Gemini |
+| `bedrock` | AWS Bedrock |
+| `glm` | Zhipu GLM |
+| `compatible` | Любой API, совместимый с OpenAI |
+
+### Поддерживаемые каналы
+
+`Telegram` · `Discord` · `Slack` · `WhatsApp` · `QQ` · `DingTalk` · `Lark` · `Signal` · `Matrix` · `Mattermost` · `IRC` · `Nostr` · `iMessage` · `Email`
+
+---
+
+### Сборка из исходников
+
+```bash
+git clone https://github.com/openbnclabs/openbnc.git
+cd openbnc
+cd web && npm install && npx vite build && cd ..
+cargo build --release
+```
+
+### Быстрый старт (Ollama)
+
+```bash
+ollama pull qwen2.5:7b
+PROVIDER=ollama API_KEY=http://localhost:11434 OPENBNC_MODEL=qwen2.5:7b ./openbnc daemon
+```
+
+Откройте **http://localhost:42617** в браузере.
+
+### Интеграция с Telegram
+
+```toml
+[channels_config.telegram]
+bot_token = "ВАШ_ТОКЕН_БОТА"
+allowed_users = ["ваш_username"]
+stream_mode = "partial"
+interrupt_on_new_message = true
+```
+
+Используйте команду `daemon` (не `gateway`) для запуска.
+
+### Разница между `gateway` и `daemon`
+
+| Команда | Что запускается |
+|---------|----------------|
+| `openbnc gateway` | Только HTTP-шлюз |
+| `openbnc daemon` | Шлюз + каналы + планировщик |
